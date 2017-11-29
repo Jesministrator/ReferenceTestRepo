@@ -31,7 +31,7 @@ public class ReferTest {
 	
 	public static void strongReferenceTest() {
 		List<ReferObject> list = new ArrayList<>();
-		for(Integer i =1; i<=20; i++) {
+		for(Integer i =1; i<=10; i++) {
 			ReferObject obj = new ReferObject(i.toString());
 			list.add(obj);
 			System.out.println(obj.toString());
@@ -39,11 +39,15 @@ public class ReferTest {
 	}
 	
 	public static void softReferenceTest() {
+		
+		
+		
 		List<SoftReference<ReferObject>> list = new ArrayList<>();
-		for(Integer i =1; i<=20; i++) {
+		for(Integer i =1; i<=10; i++) {
 			ReferObject obj = new ReferObject(i.toString());
 			list.add(new SoftReference<ReferObject>(obj) );
 			System.out.println(list.get(i-1).get());
+			//每隔2s创建一个对象
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
@@ -55,19 +59,42 @@ public class ReferTest {
 	
 	public static void weakReferenceTest() {
 		List<WeakReference<ReferObject>> list = new ArrayList<>();
-		for(Integer i =1; i<=20; i++) {
+		for(Integer i =1; i<=10; i++) {
 			ReferObject obj = new ReferObject(i.toString());
 			list.add(new WeakReference<ReferObject>(obj) );
 			System.out.println(list.get(i-1).get());
+			//每隔2s创建一个对象
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
 	public static void phantomReferenceTest() {
-		ReferenceQueue<ReferObject> queue = new ReferenceQueue<>();
-		for(Integer i =1; i<=20; i++) {
-			PhantomReference<ReferObject> phantomReference = new PhantomReference<ReferObject>(new ReferObject(i.toString()), queue); 
-			System.out.println(phantomReference.get());
+		ReferObject obj = new ReferObject("obj");
+		PhantomReference<ReferObject> phantomReference = new PhantomReference<ReferObject>(obj, new ReferenceQueue<>()); 
+		System.out.println(phantomReference.get());
+		System.out.println(phantomReference.isEnqueued());
+		
+		obj=null;
+		System.gc();
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		System.gc();
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(phantomReference.isEnqueued());
 	}
 
 	
@@ -76,7 +103,7 @@ public class ReferTest {
  class ReferObject{
 	private String id;
 	//用来增大每个对象所占内存大小
-	private double[] d = new double[20000]; 
+	private double[] d = new double[30000]; 
 	
 	public ReferObject(String id) {
 		this.id = id;
