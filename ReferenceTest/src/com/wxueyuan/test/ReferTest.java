@@ -32,15 +32,28 @@ public class ReferTest {
 	public static void strongReferenceTest() {
 		List<ReferObject> list = new ArrayList<>();
 		for(Integer i =1; i<=10; i++) {
+			//实例化ReferObject
 			ReferObject obj = new ReferObject(i.toString());
+			//将对象放入list中防止被垃圾回收
 			list.add(obj);
-			System.out.println(obj.toString());
+			System.out.println(obj);
 		}
 	}
 	
 	public static void softReferenceTest() {
-		
-		
+		SoftReference<ReferObject> sr = new SoftReference<ReferObject>(new ReferObject("obj"));
+		System.out.println(sr.get());
+		//通知jvm可以进行垃圾回收
+		System.gc();
+		//等待gc工作
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("after gc worked " +sr.get());
+		System.out.println("***************************");
 		
 		List<SoftReference<ReferObject>> list = new ArrayList<>();
 		for(Integer i =1; i<=10; i++) {
@@ -58,11 +71,25 @@ public class ReferTest {
 	}
 	
 	public static void weakReferenceTest() {
+		WeakReference<ReferObject> wr = new WeakReference<ReferObject>(new ReferObject("obj"));
+		//通知jvm可以进行垃圾回收
+		System.out.println(wr.get());
+		//等待gc工作
+		System.gc();
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("after gc worked " +wr.get());
+		System.out.println("***************************");
+		
 		List<WeakReference<ReferObject>> list = new ArrayList<>();
 		for(Integer i =1; i<=10; i++) {
 			ReferObject obj = new ReferObject(i.toString());
 			list.add(new WeakReference<ReferObject>(obj) );
-			System.out.println(list.get(i-1).get());
+			
 			//每隔2s创建一个对象
 			try {
 				Thread.sleep(2000);
@@ -70,6 +97,7 @@ public class ReferTest {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			System.out.println(list.get(i-1).get());
 		}
 	}
 	
@@ -77,23 +105,31 @@ public class ReferTest {
 		ReferObject obj = new ReferObject("obj");
 		PhantomReference<ReferObject> phantomReference = new PhantomReference<ReferObject>(obj, new ReferenceQueue<>()); 
 		System.out.println(phantomReference.get());
+		//查看对象是否不在内存中
 		System.out.println(phantomReference.isEnqueued());
 		
 		obj=null;
+		//通知gc工作
 		System.gc();
+		//等待gc工作
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//查看对象是否不在内存中
+		System.out.println(phantomReference.isEnqueued());
+		//通知gc工作
 		System.gc();
+		//等待gc工作
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//查看对象是否不在内存中
 		System.out.println(phantomReference.isEnqueued());
 	}
 
